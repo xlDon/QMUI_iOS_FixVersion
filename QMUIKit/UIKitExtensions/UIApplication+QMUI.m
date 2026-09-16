@@ -109,6 +109,7 @@ QMUISynthesizeBOOLProperty(qmui_didFinishLaunching, setQmui_didFinishLaunching)
 
 - (UIWindowScene *)qmui_activeWindowScene {
     if (@available(iOS 13.0, *)) {
+        UIWindowScene *fallbackScene = nil;
         for (UIScene *scene in self.connectedScenes) {
             if (![scene isKindOfClass:UIWindowScene.class]) {
                 continue;
@@ -117,7 +118,11 @@ QMUISynthesizeBOOLProperty(qmui_didFinishLaunching, setQmui_didFinishLaunching)
             if (windowScene.activationState == UISceneActivationStateForegroundActive) {
                 return windowScene;
             }
+            if (!fallbackScene) {
+                fallbackScene = windowScene;
+            }
         }
+        return fallbackScene;
     }
     return nil;
 }

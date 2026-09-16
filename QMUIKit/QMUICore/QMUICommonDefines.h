@@ -19,6 +19,7 @@
 #import <UIKit/UIKit.h>
 #import "QMUIHelper.h"
 #import "NSString+QMUI.h"
+#import "UIApplication+QMUI.h"
 
 #pragma mark - 变量-编译相关
 
