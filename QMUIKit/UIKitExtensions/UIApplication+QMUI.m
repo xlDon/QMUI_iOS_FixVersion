@@ -107,5 +107,20 @@ QMUISynthesizeBOOLProperty(qmui_didFinishLaunching, setQmui_didFinishLaunching)
     return delegateWindow;
 }
 
+- (UIWindowScene *)qmui_activeWindowScene {
+    if (@available(iOS 13.0, *)) {
+        for (UIScene *scene in self.connectedScenes) {
+            if (![scene isKindOfClass:UIWindowScene.class]) {
+                continue;
+            }
+            UIWindowScene *windowScene = (UIWindowScene *)scene;
+            if (windowScene.activationState == UISceneActivationStateForegroundActive) {
+                return windowScene;
+            }
+        }
+    }
+    return nil;
+}
+
 @end
 

@@ -26,6 +26,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, readonly) __kindof UIWindow *qmui_keyWindow;
 @property (nullable, nonatomic, readonly) __kindof UIWindow *qmui_delegateWindow;
 
+/// 当前处于前台活跃状态的 WindowScene
+@property (nonatomic, readonly, nullable) UIWindowScene *qmui_activeWindowScene;
+
 @end
 
 NS_ASSUME_NONNULL_END
