@@ -64,22 +64,22 @@ QMUISynthesizeNSIntegerProperty(lastOrientationChangedByHelper, setLastOrientati
         return YES;
     }
     if ((mask & UIInterfaceOrientationMaskAllButUpsideDown) == UIInterfaceOrientationMaskAllButUpsideDown) {
-        return UIInterfaceOrientationPortraitUpsideDown != deviceOrientation;
+        return UIDeviceOrientationPortraitUpsideDown != deviceOrientation;
     }
     if ((mask & UIInterfaceOrientationMaskPortrait) == UIInterfaceOrientationMaskPortrait) {
-        return UIInterfaceOrientationPortrait == deviceOrientation;
+        return UIDeviceOrientationPortrait == deviceOrientation;
     }
     if ((mask & UIInterfaceOrientationMaskLandscape) == UIInterfaceOrientationMaskLandscape) {
-        return UIInterfaceOrientationLandscapeLeft == deviceOrientation || UIInterfaceOrientationLandscapeRight == deviceOrientation;
+        return UIDeviceOrientationLandscapeLeft == deviceOrientation || UIDeviceOrientationLandscapeRight == deviceOrientation;
     }
     if ((mask & UIInterfaceOrientationMaskLandscapeLeft) == UIInterfaceOrientationMaskLandscapeLeft) {
-        return UIInterfaceOrientationLandscapeLeft == deviceOrientation;
+        return UIDeviceOrientationLandscapeLeft == deviceOrientation;
     }
     if ((mask & UIInterfaceOrientationMaskLandscapeRight) == UIInterfaceOrientationMaskLandscapeRight) {
-        return UIInterfaceOrientationLandscapeRight == deviceOrientation;
+        return UIDeviceOrientationLandscapeRight == deviceOrientation;
     }
     if ((mask & UIInterfaceOrientationMaskPortraitUpsideDown) == UIInterfaceOrientationMaskPortraitUpsideDown) {
-        return UIInterfaceOrientationPortraitUpsideDown == deviceOrientation;
+        return UIDeviceOrientationPortraitUpsideDown == deviceOrientation;
     }
     
     return YES;
@@ -110,7 +110,7 @@ QMUISynthesizeNSIntegerProperty(lastOrientationChangedByHelper, setLastOrientati
 }
 
 + (CGAffineTransform)transformForCurrentInterfaceOrientation {
-    return [QMUIHelper transformWithInterfaceOrientation:UIApplication.sharedApplication.statusBarOrientation];
+    return [QMUIHelper transformWithInterfaceOrientation:UIApplication.sharedApplication.qmui_interfaceOrientation];
 }
 
 + (CGAffineTransform)transformWithInterfaceOrientation:(UIInterfaceOrientation)orientation {
@@ -152,13 +152,13 @@ QMUISynthesizeNSIntegerProperty(lastOrientationChangedByHelper, setLastOrientati
                 }
                 
                 
-                UIInterfaceOrientation statusBarOrientation = UIApplication.sharedApplication.statusBarOrientation;
+                UIInterfaceOrientation interfaceOrientation = UIApplication.sharedApplication.qmui_interfaceOrientation;
                 UIDeviceOrientation lastOrientationChangedByHelper = [QMUIHelper sharedInstance].lastOrientationChangedByHelper;
                 BOOL shouldConsiderLastChanged = lastOrientationChangedByHelper != UIDeviceOrientationUnknown;
                 UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
                 
                 // 虽然这两者的 unknow 值是相同的，但在启动 App 时可能只有其中一个是 unknown
-                if (statusBarOrientation == UIInterfaceOrientationUnknown || deviceOrientation == UIDeviceOrientationUnknown) return;
+                if (interfaceOrientation == UIInterfaceOrientationUnknown || deviceOrientation == UIDeviceOrientationUnknown) return;
                 
                 // 之前没用私有接口修改过，那就按最标准的方式去旋转
                 if (!shouldConsiderLastChanged) {

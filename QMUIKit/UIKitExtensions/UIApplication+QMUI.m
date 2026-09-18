@@ -127,5 +127,9 @@ QMUISynthesizeBOOLProperty(qmui_didFinishLaunching, setQmui_didFinishLaunching)
     return nil;
 }
 
-@end
+- (UIInterfaceOrientation)qmui_interfaceOrientation {
+    UIWindowScene *windowScene = self.qmui_keyWindow.windowScene ?: self.qmui_activeWindowScene;
+    return windowScene ? windowScene.interfaceOrientation : UIInterfaceOrientationUnknown;
+}
 
+@end

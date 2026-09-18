@@ -82,16 +82,15 @@ NSString *const kShouldFixTitleViewBugKey = @"kShouldFixTitleViewBugKey";
             }
 //#endif
         
-        if (QMUIHelper.isUsedLiquidGlass) {
-            // 不处理
-        } else {
+        Class legacyContentViewClass = NSClassFromString([NSString qmui_stringByConcat:@"_", @"UINavigationBar", @"ContentView", nil]);
+        if (legacyContentViewClass) {
             // [UIKit Bug] iOS 12 及以上的系统，如果设置了自己的 leftBarButtonItem，且 title 很长时，则当 pop 的时候，title 会瞬间跳到左边，与 leftBarButtonItem 重叠
             // https://github.com/Tencent/QMUI_iOS/issues/1217
             // _UITAMICAdaptorView
             Class adaptorClass = NSClassFromString([NSString qmui_stringByConcat:@"_", @"UITAMIC", @"Adaptor", @"View", nil]);
             
             // -[_UINavigationBarContentView didAddSubview:]
-            OverrideImplementation(NSClassFromString([NSString qmui_stringByConcat:@"_", @"UINavigationBar", @"ContentView", nil]), @selector(didAddSubview:), ^id(__unsafe_unretained Class originClass, SEL originCMD, IMP (^originalIMPProvider)(void)) {
+            OverrideImplementation(legacyContentViewClass, @selector(didAddSubview:), ^id(__unsafe_unretained Class originClass, SEL originCMD, IMP (^originalIMPProvider)(void)) {
                 return ^(UIView *selfObject, UIView *firstArgv) {
                     
                     // call super

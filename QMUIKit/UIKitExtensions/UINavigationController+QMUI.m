@@ -143,14 +143,16 @@ QMUISynthesizeIdStrongProperty(qmui_interactiveGestureDelegator, setQmui_interac
             }
         });
         
-        NSString *barContentViewString;
-        if (QMUIHelper.isUsedLiquidGlass) {
-            barContentViewString = [NSString qmui_stringByConcat:@"UIKit.", @"NavigationBar", @"ContentView", nil];
-        } else {
-            barContentViewString = [NSString qmui_stringByConcat:@"_", @"UINavigationBar", @"ContentView", nil];
-        }
-        OverrideImplementation(NSClassFromString(barContentViewString), NSSelectorFromString(@"__backButtonAction:"), ^id(__unsafe_unretained Class originClass, SEL originCMD, IMP (^originalIMPProvider)(void)) {
-            return ^(UIView *selfObject, id firstArgv) {
+        NSArray<NSString *> *barContentViewClassNames = @[
+            [NSString qmui_stringByConcat:@"UIKit.", @"NavigationBar", @"ContentView", nil],
+            [NSString qmui_stringByConcat:@"_", @"UINavigationBar", @"ContentView", nil]
+        ];
+        for (NSString *className in barContentViewClassNames) {
+            Class barContentViewClass = NSClassFromString(className);
+            SEL backButtonAction = NSSelectorFromString(@"__backButtonAction:");
+            if (!barContentViewClass || ![barContentViewClass instancesRespondToSelector:backButtonAction]) continue;
+            OverrideImplementation(barContentViewClass, backButtonAction, ^id(__unsafe_unretained Class originClass, SEL originCMD, IMP (^originalIMPProvider)(void)) {
+                return ^(UIView *selfObject, id firstArgv) {
                 
                 if ([selfObject.superview isKindOfClass:UINavigationBar.class]) {
                     UINavigationBar *bar = (UINavigationBar *)selfObject.superview;
@@ -165,8 +167,9 @@ QMUISynthesizeIdStrongProperty(qmui_interactiveGestureDelegator, setQmui_interac
                 void (*originSelectorIMP)(id, SEL, id);
                 originSelectorIMP = (void (*)(id, SEL, id))originalIMPProvider();
                 originSelectorIMP(selfObject, originCMD, firstArgv);
-            };
-        });
+                };
+            });
+        }
         
         if (@available(iOS 18.0, *)) {
             OverrideImplementation([UINavigationController class], NSSelectorFromString([NSString qmui_stringByConcat:@"_", @"didEndTransition", @"FromView:", @"toView:", @"wasCustom:", nil]), ^id(__unsafe_unretained Class originClass, SEL originCMD, IMP (^originalIMPProvider)(void)) {
@@ -266,8 +269,8 @@ QMUISynthesizeIdStrongProperty(qmui_interactiveGestureDelegator, setQmui_interac
                 
                 QMUINavigationAction action = selfObject.qmui_navigationAction;
                 if (action != QMUINavigationActionUnknow) {
-                    if (QMUIHelper.isUsedLiquidGlass) {
-                        // iOS 26液态玻璃下，转场动画可以被打断
+                    if (@available(iOS 26.0, *)) {
+                        // iOS 26 起转场动画可以被打断。
                     } else {
                         QMUILogWarn(@"UINavigationController (QMUI)", @"popViewController 时上一次的转场尚未完成，系统会忽略本次 pop，等上一次转场完成后再重新执行 pop, viewControllers = %@", selfObject.viewControllers);
                     }
@@ -346,8 +349,8 @@ QMUISynthesizeIdStrongProperty(qmui_interactiveGestureDelegator, setQmui_interac
                 
                 QMUINavigationAction action = selfObject.qmui_navigationAction;
                 if (action != QMUINavigationActionUnknow) {
-                    if (QMUIHelper.isUsedLiquidGlass) {
-                        // iOS 26液态玻璃下，转场动画可以被打断
+                    if (@available(iOS 26.0, *)) {
+                        // iOS 26 起转场动画可以被打断。
                     } else {
                         QMUILogWarn(@"UINavigationController (QMUI)", @"popToViewController 时上一次的转场尚未完成，系统会忽略本次 pop，等上一次转场完成后再重新执行 pop, currentViewControllers = %@, viewController = %@", selfObject.viewControllers, viewController);
                     }
@@ -397,8 +400,8 @@ QMUISynthesizeIdStrongProperty(qmui_interactiveGestureDelegator, setQmui_interac
                 
                 QMUINavigationAction action = selfObject.qmui_navigationAction;
                 if (action != QMUINavigationActionUnknow) {
-                    if (QMUIHelper.isUsedLiquidGlass) {
-                        // iOS 26液态玻璃下，转场动画可以被打断
+                    if (@available(iOS 26.0, *)) {
+                        // iOS 26 起转场动画可以被打断。
                     } else {
                         QMUILogWarn(@"UINavigationController (QMUI)", @"popToRootViewController 时上一次的转场尚未完成，系统会忽略本次 pop，等上一次转场完成后再重新执行 pop, viewControllers = %@", selfObject.viewControllers);
                     }

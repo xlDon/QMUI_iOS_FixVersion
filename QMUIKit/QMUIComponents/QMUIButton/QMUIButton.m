@@ -27,6 +27,7 @@ const CGFloat QMUIButtonCornerRadiusAdjustsBounds = -1;
 @property(nonatomic, strong) UIColor *originBorderColor;
 @end
 
+BeginIgnoreDeprecatedWarning
 @implementation QMUIButton
 
 @synthesize subtitleLabel = _qmuisubtitleLabel;
@@ -414,3 +415,4 @@ const CGFloat QMUIButtonCornerRadiusAdjustsBounds = -1;
 }
 
 @end
+EndIgnoreDeprecatedWarning

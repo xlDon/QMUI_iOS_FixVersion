@@ -30,16 +30,13 @@ QMUISynthesizeIdCopyProperty(qmui_doubleTapBlock, setQmui_doubleTapBlock)
     if (!tabBarButton) {
         return nil;
     }
-    if (QMUIHelper.isUsedLiquidGlass) {
-        for (UIView *subview in tabBarButton.subviews) {
-            if ([subview isKindOfClass:UIImageView.class]) {
-                return (UIImageView *)subview;
-            }
+    // 新版 UIKit 会直接把 imageView 放在 button 中，旧版则保留 _imageView。
+    for (UIView *subview in tabBarButton.subviews) {
+        if ([subview isKindOfClass:UIImageView.class]) {
+            return (UIImageView *)subview;
         }
-        return nil;
-    } else {
-        return [tabBarButton qmui_valueForKey:@"_imageView"];
     }
+    return [tabBarButton qmui_valueForKey:@"_imageView"];
 }
 
 @end

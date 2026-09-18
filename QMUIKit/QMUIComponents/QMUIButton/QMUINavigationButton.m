@@ -41,6 +41,7 @@ typedef NS_ENUM(NSInteger, QMUINavigationButtonPosition) {
 @end
 
 
+BeginIgnoreDeprecatedWarning
 @implementation QMUINavigationButton
 
 - (instancetype)init {
@@ -99,7 +100,7 @@ typedef NS_ENUM(NSInteger, QMUINavigationButtonPosition) {
             break;
         case QMUINavigationButtonTypeImage:
             // 拓展宽度，以保证用 leftBarButtonItems/rightBarButtonItems 时，按钮与按钮之间间距与系统的保持一致
-            if (QMUIHelper.isUsedLiquidGlass) {
+            if (@available(iOS 26.0, *)) {
                 self.contentEdgeInsets = UIEdgeInsetsZero;
             } else {
                 self.contentEdgeInsets = UIEdgeInsetsMake(0, 11, 0, 11);
@@ -126,7 +127,7 @@ typedef NS_ENUM(NSInteger, QMUINavigationButtonPosition) {
             
             self.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
             
-            if (QMUIHelper.isUsedLiquidGlass) {
+            if (@available(iOS 26.0, *)) {
                 self.contentEdgeInsets = UIEdgeInsetsZero;
             } else {
                 // @warning 这些数值都是每个iOS版本核对过没问题的，如果修改则要检查要每个版本里与系统UIBarButtonItem的布局是否一致
@@ -215,7 +216,7 @@ typedef NS_ENUM(NSInteger, QMUINavigationButtonPosition) {
 
 // 对按钮内容添加偏移，让UIBarButtonItem适配最新设备的系统行为，统一位置。注意 iOS 11 及以后，只有 image 类型的才会走进来
 - (UIEdgeInsets)alignmentRectInsets {
-    if (QMUIHelper.isUsedLiquidGlass) {
+    if (@available(iOS 26.0, *)) {
         return [super alignmentRectInsets];
     } else {
         UIEdgeInsets insets = [super alignmentRectInsets];
@@ -243,6 +244,7 @@ typedef NS_ENUM(NSInteger, QMUINavigationButtonPosition) {
 }
 
 @end
+EndIgnoreDeprecatedWarning
 
 @implementation UIBarButtonItem (QMUINavigationButton)
 
@@ -436,7 +438,7 @@ typedef NS_ENUM(NSInteger, QMUINavigationButtonPosition) {
                     && ((QMUINavigationButton *)selfObject.navigationItem.leftBarButtonItem.customView).enabled
                     && selfObject.navigationController.qmui_rootViewController != selfObject
                     && selfObject.navigationController.interactivePopGestureRecognizer.enabled
-                    && !UIApplication.sharedApplication.ignoringInteractionEvents) {
+                    && selfObject.navigationController.view.userInteractionEnabled) {
                     [selfObject.navigationController popViewControllerAnimated:YES];
                     return YES;
                 }
@@ -462,14 +464,15 @@ typedef NS_ENUM(NSInteger, QMUINavigationButtonPosition) {
         // 强制修改 contentView 的 directionalLayoutMargins.leading，在使用自定义返回按钮时减小 8
         // Xcode11 beta2 修改私有 view 的 directionalLayoutMargins 会 crash，换个方式
         // -[_UINavigationBarContentView directionalLayoutMargins]
-        NSString *barContentViewString;
-        if (QMUIHelper.isUsedLiquidGlass) {
-            barContentViewString = [NSString qmui_stringByConcat:@"UIKit.", @"NavigationBar", @"ContentView", nil];
-        } else {
-            barContentViewString = [NSString qmui_stringByConcat:@"_", @"UINavigationBar", @"ContentView", nil];
-        }
-        OverrideImplementation(NSClassFromString(barContentViewString), @selector(directionalLayoutMargins), ^id(__unsafe_unretained Class originClass, SEL originCMD, IMP (^originalIMPProvider)(void)) {
-            return ^NSDirectionalEdgeInsets(UIView *selfObject) {
+        NSArray<NSString *> *barContentViewClassNames = @[
+            [NSString qmui_stringByConcat:@"UIKit.", @"NavigationBar", @"ContentView", nil],
+            [NSString qmui_stringByConcat:@"_", @"UINavigationBar", @"ContentView", nil]
+        ];
+        for (NSString *barContentViewString in barContentViewClassNames) {
+            Class barContentViewClass = NSClassFromString(barContentViewString);
+            if (!barContentViewClass || ![barContentViewClass instancesRespondToSelector:@selector(directionalLayoutMargins)]) continue;
+            OverrideImplementation(barContentViewClass, @selector(directionalLayoutMargins), ^id(__unsafe_unretained Class originClass, SEL originCMD, IMP (^originalIMPProvider)(void)) {
+                return ^NSDirectionalEdgeInsets(UIView *selfObject) {
                 
                 // call super
                 NSDirectionalEdgeInsets (*originSelectorIMP)(id, SEL);
@@ -491,8 +494,9 @@ typedef NS_ENUM(NSInteger, QMUINavigationButtonPosition) {
                 }
                 
                 return originResult;
-            };
-        });
+                };
+            });
+        }
         
         // 系统的 UIBarButtonItem 响应区域比较大，如果用 customView 则响应区域只有 customView.frame 的大小，这里专门扩大它
         // 对没用 customView 的不处理

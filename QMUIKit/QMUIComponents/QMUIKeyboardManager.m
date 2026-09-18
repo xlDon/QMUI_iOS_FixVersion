@@ -874,17 +874,16 @@ static char kAssociatedObjectKey_KeyboardViewFrameObserver;
 }
 
 + (UIView *)inputSetHostViewInWindow:(UIWindow *)window {
-    if (QMUIHelper.isUsedLiquidGlass) {
-        UIView *result = [[window.subviews qmui_firstMatchWithBlock:^BOOL(__kindof UIView * _Nonnull subview) {
-            return [NSStringFromClass(subview.class) isEqualToString:@"UITrackingWindowView"];
-        }].subviews qmui_firstMatchWithBlock:^BOOL(__kindof UIView * _Nonnull subview) {
-            return [NSStringFromClass(subview.class) isEqualToString:@"UIKeyboardItemContainerView"] && subview.subviews.count;
-        }];
-        if (result) {
-            return result;
-        }
-    }
+    // 先查找 iOS 26 起的键盘层级，再回退到旧的 input set host view。
     UIView *result = [[window.subviews qmui_firstMatchWithBlock:^BOOL(__kindof UIView * _Nonnull subview) {
+        return [NSStringFromClass(subview.class) isEqualToString:@"UITrackingWindowView"];
+    }].subviews qmui_firstMatchWithBlock:^BOOL(__kindof UIView * _Nonnull subview) {
+        return [NSStringFromClass(subview.class) isEqualToString:@"UIKeyboardItemContainerView"] && subview.subviews.count;
+    }];
+    if (result) {
+        return result;
+    }
+    result = [[window.subviews qmui_firstMatchWithBlock:^BOOL(__kindof UIView * _Nonnull subview) {
         return [NSStringFromClass(subview.class) isEqualToString:@"UIInputSetContainerView"];
     }].subviews qmui_firstMatchWithBlock:^BOOL(__kindof UIView * _Nonnull subview) {
         return [NSStringFromClass(subview.class) isEqualToString:@"UIInputSetHostView"] && subview.subviews.count;

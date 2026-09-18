@@ -401,7 +401,9 @@
     
     _sendButton = [[QMUIButton alloc] init];
     [self.sendButton setTitle:@"发送" forState:UIControlStateNormal];
+    BeginIgnoreDeprecatedWarning
     self.sendButton.contentEdgeInsets = UIEdgeInsetsMake(5, 17, 5, 17);
+    EndIgnoreDeprecatedWarning
     [self addSubview:self.sendButton];
 
     _deleteButton = [[QMUIButton alloc] init];

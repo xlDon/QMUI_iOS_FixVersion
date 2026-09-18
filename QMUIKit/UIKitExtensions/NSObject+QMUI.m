@@ -523,11 +523,9 @@ QMUISynthesizeBOOLProperty(qmui_shouldIgnoreUIKVCAccessProhibited, setQmui_shoul
                 NSString *reason = [[NSString alloc] initWithFormat:format arguments:args];
                 BOOL shouldCallSuper = YES;
                 // https://github.com/Tencent/QMUI_iOS/issues/1680
-                if (QMUIHelper.isUsedLiquidGlass) {
-                    if (raise == NSInternalInconsistencyException && [reason hasPrefix:@"The layout constraints still need update after sending -updateConstraints to <_UINavigationBarTitleControl"]) {
-                        QMUILogWarn(@"NSObject (QMUI)", @"iOS 26.0会因约束问题触发_UINavigationBarTitleControl的 NSException，详情见：https://github.com/Tencent/QMUI_iOS/issues/1680");
-                        shouldCallSuper = NO;
-                    }
+                if (raise == NSInternalInconsistencyException && [reason hasPrefix:@"The layout constraints still need update after sending -updateConstraints to <_UINavigationBarTitleControl"]) {
+                    QMUILogWarn(@"NSObject (QMUI)", @"UIKit 会因约束问题触发 _UINavigationBarTitleControl 的 NSException，详情见：https://github.com/Tencent/QMUI_iOS/issues/1680");
+                    shouldCallSuper = NO;
                 }
                 if (shouldCallSuper) {
                     originSelectorIMP(selfObject, originCMD, raise, reason);

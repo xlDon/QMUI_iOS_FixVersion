@@ -162,10 +162,6 @@ static char kAssociatedObjectKey_badgeOffsetLandscape;
 
 - (void)setQmui_badgeView:(__kindof UIView *)qmui_badgeView {
     self.qmui_view.qmui_badgeView = qmui_badgeView;
-    
-    if (QMUIHelper.isUsedLiquidGlass) {
-        QMUIAssert(NO, @"UIBarItem (QMUIBadge)", @"Not supported");
-    }
 }
 
 - (__kindof UIView *)qmui_badgeView {
@@ -243,10 +239,6 @@ static char kAssociatedObjectKey_updatesIndicatorOffsetLandscape;
 
 - (void)setQmui_updatesIndicatorView:(__kindof UIView *)qmui_updatesIndicatorView {
     self.qmui_view.qmui_updatesIndicatorView = qmui_updatesIndicatorView;
-    
-    if (QMUIHelper.isUsedLiquidGlass) {
-        QMUIAssert(NO, @"UIBarItem (QMUIBadge)", @"Not supported");
-    }
 }
 
 - (UIView *)qmui_updatesIndicatorView {
@@ -265,30 +257,27 @@ static char kAssociatedObjectKey_updatesIndicatorOffsetLandscape;
 #pragma mark - Common
 
 - (nullable UIView *)qmui_selectedView {
-    if (QMUIHelper.isUsedLiquidGlass) {
-        if (![self isKindOfClass:UITabBarItem.class]) {
-            return nil;
-        }
-        UIView *view = self.qmui_view;
-        if (!view) {
-            return nil;
-        }
-        NSInteger index = [view.superview.subviews indexOfObject:view];
-        if (index == NSNotFound) {
-            return nil;
-        }
-        UIView *platterView = view.superview.superview;
-        if (![NSStringFromClass(platterView.class) hasSuffix:@"_UITabBarPlatterView"]) {
-            return nil;
-        }
-        UIView *selectedContentView = platterView.subviews.firstObject;
-        if (![NSStringFromClass(selectedContentView.class) hasSuffix:@"SelectedContentView"]) {
-            return nil;
-        }
-        if (index < selectedContentView.subviews.count) {
-            UIView *selectedView = [selectedContentView.subviews objectAtIndex:index];
-            return selectedView;
-        }
+    if (![self isKindOfClass:UITabBarItem.class]) {
+        return nil;
+    }
+    UIView *view = self.qmui_view;
+    if (!view) {
+        return nil;
+    }
+    NSInteger index = [view.superview.subviews indexOfObject:view];
+    if (index == NSNotFound) {
+        return nil;
+    }
+    UIView *platterView = view.superview.superview;
+    if (![NSStringFromClass(platterView.class) hasSuffix:@"_UITabBarPlatterView"]) {
+        return nil;
+    }
+    UIView *selectedContentView = platterView.subviews.firstObject;
+    if (![NSStringFromClass(selectedContentView.class) hasSuffix:@"SelectedContentView"]) {
+        return nil;
+    }
+    if (index < selectedContentView.subviews.count) {
+        return [selectedContentView.subviews objectAtIndex:index];
     }
     return nil;
 }

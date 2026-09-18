@@ -1167,23 +1167,6 @@ static NSInteger isHighPerformanceDevice = -1;
     return YES;
 }
 
-+ (BOOL)isUsedLiquidGlass {
-    static BOOL result = NO;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-#ifdef IOS26_SDK_ALLOWED
-        if (@available(iOS 26.0, *)) {
-            result = ![[NSBundle.mainBundle objectForInfoDictionaryKey:@"UIDesignRequiresCompatibility"] boolValue];
-        } else {
-            result = NO;
-        }
-#else
-        result = NO;
-#endif
-    });
-    return result;
-}
-
 @end
 
 @implementation QMUIHelper (Animation)

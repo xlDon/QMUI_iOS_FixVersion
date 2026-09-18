@@ -43,21 +43,20 @@ QMUISynthesizeIdCopyProperty(qmui_stepDidChangeBlock, setQmui_stepDidChangeBlock
     }
     if (!slider) return nil;
 
-    if (QMUIHelper.isUsedLiquidGlass) {
+    // iOS 26 的 thumb 放在 lens view 里，先按实际视图层级查找，找不到再回退旧层级。
+    Class lensViewClass = NSClassFromString(@"_UILiquidLensView");
+    if (lensViewClass) {
         for (UIView *subview in slider.subviews) {
-            if ([subview isKindOfClass:NSClassFromString(@"_UILiquidLensView")]) {
-                for (UIImageView *imageView in subview.subviews) {
-                    if ([imageView isKindOfClass:UIImageView.class]) {
-                        return imageView;
+            if ([subview isKindOfClass:lensViewClass]) {
+                for (UIView *lensSubview in subview.subviews) {
+                    if ([lensSubview isKindOfClass:UIImageView.class]) {
+                        return (UIImageView *)lensSubview;
                     }
                 }
             }
         }
-        return nil;
-    } else {
-        UIView *thumbView = [slider qmui_valueForKey:@"thumbView"] ?: [slider qmui_valueForKey:@"innerThumbView"];
-        return thumbView;
     }
+    return [slider qmui_valueForKey:@"thumbView"] ?: [slider qmui_valueForKey:@"innerThumbView"];
 }
 
 static char kAssociatedObjectKey_trackHeight;

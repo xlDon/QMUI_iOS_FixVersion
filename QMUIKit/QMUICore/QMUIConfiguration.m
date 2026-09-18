@@ -175,7 +175,7 @@ static BOOL QMUI_hasAppliedInitialTemplate;
     self.sizeNavBarBackIndicatorImageAutomatically = YES;
     self.navBarLoadingMarginRight = 3;
     self.navBarAccessoryViewMarginLeft = 5;
-    self.navBarActivityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+    self.navBarActivityIndicatorViewStyle = UIActivityIndicatorViewStyleMedium;
     
     // XCTest 会在 dispatch_once 里访问 UIScreen 引发死锁，所以屏蔽掉
     // https://github.com/Tencent/QMUI_iOS/issues/1479

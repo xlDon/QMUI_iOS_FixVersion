@@ -99,9 +99,12 @@ NS_ASSUME_NONNULL_BEGIN
  返回不同滚动位置下对应的状态栏样式
  @param animator 当前的 animator 对象
  @param progress 当前滚动位置处于 offsetYToStartAnimation 到 (offsetYToStartAnimation + distanceToStopAnimation) 之间的哪个进度
- @warning 需在项目的 Info.plist 文件内设置字段 “View controller-based status bar appearance” 的值为 NO 才能生效，如果不设置，或者值为 YES，则请自行通过系统提供的 - preferredStatusBarStyle 方法来实现，statusbarStyleBlock 无效
+ @warning 请在页面的 -preferredStatusBarStyle 中返回 animator.statusBarStyle。每次值变化时会自动请求页面刷新状态栏外观。
  */
 @property(nullable, nonatomic, copy) UIStatusBarStyle (^statusbarStyleBlock)(QMUINavigationBarScrollingAnimator * _Nonnull animator, float progress);
+
+/// statusbarStyleBlock 最近一次计算出的状态栏样式。
+@property(nonatomic, assign, readonly) UIStatusBarStyle statusBarStyle;
 
 /**
  返回不同滚动位置下对应的导航栏的 barTintColor

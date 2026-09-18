@@ -15,7 +15,7 @@
 
 #import "QMUIAsset.h"
 #import <Photos/Photos.h>
-#import <CoreServices/CoreServices.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import "QMUICore.h"
 #import "QMUIAssetsManager.h"
 #import "NSString+QMUI.h"
@@ -25,6 +25,20 @@ static NSString * const kAssetInfoOriginInfo = @"originInfo";
 static NSString * const kAssetInfoDataUTI = @"dataUTI";
 static NSString * const kAssetInfoOrientation = @"orientation";
 static NSString * const kAssetInfoSize = @"size";
+
+static UIImageOrientation QMUIImageOrientationFromCGImagePropertyOrientation(CGImagePropertyOrientation orientation) {
+    switch (orientation) {
+        case kCGImagePropertyOrientationUp: return UIImageOrientationUp;
+        case kCGImagePropertyOrientationUpMirrored: return UIImageOrientationUpMirrored;
+        case kCGImagePropertyOrientationDown: return UIImageOrientationDown;
+        case kCGImagePropertyOrientationDownMirrored: return UIImageOrientationDownMirrored;
+        case kCGImagePropertyOrientationLeft: return UIImageOrientationLeft;
+        case kCGImagePropertyOrientationLeftMirrored: return UIImageOrientationLeftMirrored;
+        case kCGImagePropertyOrientationRight: return UIImageOrientationRight;
+        case kCGImagePropertyOrientationRightMirrored: return UIImageOrientationRightMirrored;
+    }
+    return UIImageOrientationUp;
+}
 
 @interface QMUIAsset ()
 
@@ -42,7 +56,7 @@ static NSString * const kAssetInfoSize = @"size";
         switch (phAsset.mediaType) {
             case PHAssetMediaTypeImage:
                 _assetType = QMUIAssetTypeImage;
-                if ([[phAsset qmui_valueForKey:@"uniformTypeIdentifier"] isEqualToString:(__bridge NSString *)kUTTypeGIF]) {
+                if ([[phAsset qmui_valueForKey:@"uniformTypeIdentifier"] isEqualToString:UTTypeGIF.identifier]) {
                     _assetSubType = QMUIAssetSubTypeGIF;
                 } else {
                     if (phAsset.mediaSubtypes & PHAssetMediaSubtypePhotoLive) {
@@ -76,7 +90,7 @@ static NSString * const kAssetInfoSize = @"size";
     phImageRequestOptions.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
     phImageRequestOptions.networkAccessAllowed = YES;
     phImageRequestOptions.synchronous = YES;
-    [[[QMUIAssetsManager sharedInstance] phCachingImageManager] requestImageDataForAsset:_phAsset options:phImageRequestOptions resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+    [[[QMUIAssetsManager sharedInstance] phCachingImageManager] requestImageDataAndOrientationForAsset:_phAsset options:phImageRequestOptions resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, CGImagePropertyOrientation orientation, NSDictionary * _Nullable info) {
         resultImage = [UIImage imageWithData:imageData];
     }];
     return resultImage;
@@ -117,7 +131,7 @@ static NSString * const kAssetInfoSize = @"size";
     PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
     imageRequestOptions.networkAccessAllowed = YES; // 允许访问网络
     imageRequestOptions.progressHandler = phProgressHandler;
-    return [[[QMUIAssetsManager sharedInstance] phCachingImageManager] requestImageDataForAsset:_phAsset options:imageRequestOptions resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+    return [[[QMUIAssetsManager sharedInstance] phCachingImageManager] requestImageDataAndOrientationForAsset:_phAsset options:imageRequestOptions resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, CGImagePropertyOrientation orientation, NSDictionary * _Nullable info) {
         if (completion) {
             completion([UIImage imageWithData:imageData], info);
         }
@@ -192,7 +206,7 @@ static NSString * const kAssetInfoSize = @"size";
     }
     __weak __typeof(self)weakSelf = self;
     if (!self.phAssetInfo) {
-        // PHAsset 的 UIImageOrientation 需要调用过 requestImageDataForAsset 才能获取
+        // PHAsset 的图片方向需要调用过 requestImageDataAndOrientationForAsset 才能获取
         [self requestPhAssetInfo:^(NSDictionary *phAssetInfo) {
             __strong __typeof(weakSelf)strongSelf = weakSelf;
             strongSelf.phAssetInfo = phAssetInfo;
@@ -219,7 +233,7 @@ static NSString * const kAssetInfoSize = @"size";
     UIImageOrientation orientation;
     if (self.assetType == QMUIAssetTypeImage) {
         if (!self.phAssetInfo) {
-            // PHAsset 的 UIImageOrientation 需要调用过 requestImageDataForAsset 才能获取
+            // PHAsset 的图片方向需要调用过 requestImageDataAndOrientationForAsset 才能获取
             __weak __typeof(self)weakSelf = self;
             [self requestImagePhAssetInfo:^(NSDictionary *phAssetInfo) {
                 __strong __typeof(weakSelf)strongSelf = weakSelf;
@@ -276,7 +290,7 @@ static NSString * const kAssetInfoSize = @"size";
     PHImageRequestOptions *imageRequestOptions = [[PHImageRequestOptions alloc] init];
     imageRequestOptions.synchronous = synchronous;
     imageRequestOptions.networkAccessAllowed = YES;
-    [[[QMUIAssetsManager sharedInstance] phCachingImageManager] requestImageDataForAsset:_phAsset options:imageRequestOptions resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
+    [[[QMUIAssetsManager sharedInstance] phCachingImageManager] requestImageDataAndOrientationForAsset:_phAsset options:imageRequestOptions resultHandler:^(NSData *imageData, NSString *dataUTI, CGImagePropertyOrientation orientation, NSDictionary *info) {
         if (info) {
             NSMutableDictionary *tempInfo = [[NSMutableDictionary alloc] init];
             if (imageData) {
@@ -287,7 +301,7 @@ static NSString * const kAssetInfoSize = @"size";
             if (dataUTI) {
                 [tempInfo setObject:dataUTI forKey:kAssetInfoDataUTI];
             }
-            [tempInfo setObject:@(orientation) forKey:kAssetInfoOrientation];
+            [tempInfo setObject:@(QMUIImageOrientationFromCGImagePropertyOrientation(orientation)) forKey:kAssetInfoOrientation];
             if (completion) {
                 completion(tempInfo);
             }
@@ -306,7 +320,7 @@ static NSString * const kAssetInfoSize = @"size";
 
 - (void)assetSize:(void (^)(long long size))completion {
     if (!self.phAssetInfo) {
-        // PHAsset 的 UIImageOrientation 需要调用过 requestImageDataForAsset 才能获取
+        // PHAsset 的图片方向需要调用过 requestImageDataAndOrientationForAsset 才能获取
         __weak __typeof(self)weakSelf = self;
         [self requestPhAssetInfo:^(NSDictionary *phAssetInfo) {
             __strong __typeof(weakSelf)strongSelf = weakSelf;

@@ -26,7 +26,6 @@
 #import "UIScrollView+QMUI.h"
 #import "CALayer+QMUI.h"
 #import "UIView+QMUI.h"
-#import <MobileCoreServices/MobileCoreServices.h>
 #import "QMUIEmptyView.h"
 #import "UIViewController+QMUI.h"
 #import "QMUILog.h"

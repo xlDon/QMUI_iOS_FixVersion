@@ -29,6 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 当前处于前台活跃状态的 WindowScene
 @property (nonatomic, readonly, nullable) UIWindowScene *qmui_activeWindowScene;
 
+/// 当前活跃 window scene 的界面方向。没有可用 scene 时返回 UIInterfaceOrientationUnknown。
+@property (nonatomic, readonly) UIInterfaceOrientation qmui_interfaceOrientation;
+
 @end
 
 NS_ASSUME_NONNULL_END

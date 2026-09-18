@@ -22,6 +22,7 @@
 
 @property(nonatomic, assign) BOOL progressZeroReached;
 @property(nonatomic, assign) BOOL progressOneReached;
+@property(nonatomic, assign, readwrite) UIStatusBarStyle statusBarStyle;
 @end
 
 @implementation QMUINavigationBarScrollingAnimator
@@ -76,15 +77,9 @@
                     navigationBar.barTintColor = barTintColor;
                 }
                 if (animator.statusbarStyleBlock) {
-                    UIStatusBarStyle style = animator.statusbarStyleBlock(animator, progress);
-                    // 需在项目的 Info.plist 文件内设置字段 “View controller-based status bar appearance” 的值为 NO 才能生效，如果不设置，或者值为 YES，则请自行通过系统提供的 - preferredStatusBarStyle 方法来实现，statusbarStyleBlock 无效
-                    BeginIgnoreDeprecatedWarning
-                    if (style >= UIStatusBarStyleLightContent) {
-                        [UIApplication.sharedApplication setStatusBarStyle:UIStatusBarStyleLightContent];
-                    } else {
-                        [UIApplication.sharedApplication setStatusBarStyle:UIStatusBarStyleDefault];
-                    }
-                    EndIgnoreDeprecatedWarning
+                    animator.statusBarStyle = animator.statusbarStyleBlock(animator, progress);
+                    UIViewController *viewController = animator.scrollView.qmui_viewController;
+                    [viewController setNeedsStatusBarAppearanceUpdate];
                 }
             }
         };

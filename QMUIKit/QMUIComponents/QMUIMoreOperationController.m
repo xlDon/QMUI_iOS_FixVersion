@@ -526,10 +526,12 @@ static NSInteger const kQMUIMoreOperationItemViewTagOffset = 999;
 
 - (void)setItemTitleMarginTop:(CGFloat)itemTitleMarginTop {
     _itemTitleMarginTop = itemTitleMarginTop;
+    BeginIgnoreDeprecatedWarning
     [self.mutableItems qmui_enumerateNestedArrayWithBlock:^(QMUIMoreOperationItemView *itemView, BOOL *stop) {
         itemView.titleEdgeInsets = UIEdgeInsetsMake(itemTitleMarginTop, 0, 0, 0);
         [itemView setNeedsLayout];
     }];
+    EndIgnoreDeprecatedWarning
 }
 
 - (void)setItemMinimumMarginHorizontal:(CGFloat)itemMinimumMarginHorizontal {
@@ -718,7 +720,9 @@ static NSInteger const kQMUIMoreOperationItemViewTagOffset = 999;
         moreOperationController = [QMUIMoreOperationController appearance];
     }
     self.titleLabel.font = moreOperationController.itemTitleFont;
+    BeginIgnoreDeprecatedWarning
     self.titleEdgeInsets = UIEdgeInsetsMake(moreOperationController.itemTitleMarginTop, 0, 0, 0);
+    EndIgnoreDeprecatedWarning
     [self setTitleColor:moreOperationController.itemTitleColor forState:UIControlStateNormal];
     self.imageView.backgroundColor = moreOperationController.itemBackgroundColor;
     
